@@ -1,9 +1,11 @@
+// src/main/java/com/jobsap/entity/User.java
 package com.job_sap.entity;
 
+import com.job_sap.enums.AppRole;
 import jakarta.persistence.*;
-import lombok.Data;
+//import lombok.Data;
 
-@Data
+//@Data
 @Entity
 @Table(name = "users")
 public class User {
@@ -14,7 +16,11 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
-    private String role; // e.g., "ROLE_CANDIDATE" or "ROLE_RECRUITER"
+    
+    @Enumerated(EnumType.STRING)
+    private AppRole role; 
+ // GETTERS & SETTERS
+
     public Long getId() {
         return id;
     }
@@ -39,11 +45,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public AppRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(AppRole role) {
         this.role = role;
     }
 

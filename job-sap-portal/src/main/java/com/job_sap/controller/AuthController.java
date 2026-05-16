@@ -4,6 +4,7 @@ import com.job_sap.config.JwtUtil;
 import com.job_sap.dto.AuthRequest;
 import com.job_sap.dto.AuthResponse;
 import com.job_sap.entity.User;
+import com.job_sap.enums.AppRole; // <-- FIX 1: Added missing import here
 import com.job_sap.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,10 @@ public class AuthController {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
+        
+        // AppRole will now resolve correctly because of the import above
+        user.setRole(AppRole.valueOf(request.getRole().toUpperCase())); 
+        
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");
     }
@@ -42,7 +46,10 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            String token = jwtUtil.generateToken(user.getEmail());
+            
+            // <-- FIX 2: Added .name() to convert the Enum to a String
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name()); 
+            
             return ResponseEntity.ok(new AuthResponse(token));
         }
         return ResponseEntity.status(401).body("Invalid credentials");
