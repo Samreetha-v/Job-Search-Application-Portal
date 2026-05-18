@@ -4,7 +4,7 @@ package com.job_sap.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
-
+import com.job_sap.enums.ApplicationStatus;
 @Data
 @Entity
 @Table(name = "applications")
@@ -17,7 +17,8 @@ public class Application {
     private Long candidateId;
     private String resumeLink;
     
-    private String status = "PENDING"; // e.g., PENDING, ACCEPTED, REJECTED
+    @Enumerated(EnumType.STRING)
+    private ApplicationStatus status = ApplicationStatus.APPLIED;// e.g., PENDING, ACCEPTED, REJECTED
     
     private LocalDateTime appliedAt = LocalDateTime.now();
 
@@ -53,12 +54,12 @@ public class Application {
 		this.resumeLink = resumeLink;
 	}
 
-	public String getStatus() {
-		return status;
+	public ApplicationStatus getStatus() {
+	    return status;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	public void setStatus(ApplicationStatus status) {
+	    this.status = status;
 	}
 
 	public LocalDateTime getAppliedAt() {
