@@ -13,6 +13,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    private String name;
     @Column(unique = true)
     private String email;
     private String password;
@@ -52,5 +53,13 @@ public class User {
     public void setRole(AppRole role) {
         this.role = role;
     }
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 }

@@ -53,6 +53,6 @@ public class UserService {
         
         // Pass the role to the token generator
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        return new AuthResponse(token);
+        return new AuthResponse(token,user);
     }
 }

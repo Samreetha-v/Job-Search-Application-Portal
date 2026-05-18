@@ -30,6 +30,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Email already exists");
         }
         User user = new User();
+        user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         
@@ -47,10 +48,10 @@ public class AuthController {
 
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             
-            // <-- FIX 2: Added .name() to convert the Enum to a String
             String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name()); 
             
-            return ResponseEntity.ok(new AuthResponse(token));
+            // Pass BOTH the token and the user details to the frontend
+            return ResponseEntity.ok(new AuthResponse(token, user));
         }
         return ResponseEntity.status(401).body("Invalid credentials");
     }

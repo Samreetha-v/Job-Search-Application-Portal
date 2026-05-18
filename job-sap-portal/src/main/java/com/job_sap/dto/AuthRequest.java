@@ -3,6 +3,7 @@ import lombok.Data;
 
 @Data
 public class AuthRequest {
+	private String name;
     private String email;
     private String password;
     private String role; // For registration
@@ -29,4 +30,12 @@ public class AuthRequest {
     public void setRole(String role) {
         this.role = role;
     }
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }
