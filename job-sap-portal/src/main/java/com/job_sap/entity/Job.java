@@ -17,87 +17,6 @@ public class Job {
     private String description;
     private String company;
     private String location;
-<<<<<<< HEAD
-    private String salary;
-    private String type;
-    private Long recruiterId;
-    
-    private LocalDateTime postedAt = LocalDateTime.now();
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getCompany() {
-		return company;
-	}
-
-	public void setCompany(String company) {
-		this.company = company;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public Long getRecruiterId() {
-		return recruiterId;
-	}
-
-	public void setRecruiterId(Long recruiterId) {
-		this.recruiterId = recruiterId;
-	}
-
-	public LocalDateTime getPostedAt() {
-		return postedAt;
-	}
-
-	public void setPostedAt(LocalDateTime postedAt) {
-		this.postedAt = postedAt;
-	}
-
-	public String getSalary() {
-		return salary;
-	}
-
-	public void setSalary(String salary) {
-		this.salary = salary;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-    
-}
-=======
     private Double salary;
     private String skills;
     private LocalDate postedDate;
@@ -185,4 +104,3 @@ public class Job {
         this.postedDate = postedDate; 
    // private LocalDateTime postedAt = LocalDateTime.now();
 }}
->>>>>>> refs/remotes/master/master
