@@ -25,7 +25,6 @@ import com.job_sap.service.ApplicationService;
 
 @RestController
 @RequestMapping("/api/jobseeker")
-@PreAuthorize("hasAuthority('ROLE_JOBSEEKER')") // ONLY Jobseekers allowed
 public class JobSeekerController {
 
 	@Autowired
@@ -59,14 +58,28 @@ public class JobSeekerController {
 		return ResponseEntity
 				.ok(jobRepository.findByTitleContainingIgnoreCaseOrCompanyContainingIgnoreCase(keyword, keyword));
 	}
+	
+	// View a single job's details by ID
+		@GetMapping("/jobs/{jobId}")
+		public ResponseEntity<Job> getJobById(@PathVariable Long jobId) {
+			Job job = jobRepository.findById(jobId)
+					.orElseThrow(() -> new RuntimeException("Job not found with id: " + jobId));
+			return ResponseEntity.ok(job);
+		}
 
 	// 3. Apply for a Job (Includes Resume Link)
+	@PreAuthorize("hasAnyAuthority('JOBSEEKER','ROLE_JOBSEEKER')") // ONLY Jobseekers allowed
 	@PostMapping("/apply/{jobId}")
-	public ResponseEntity<Application> applyForJob(@PathVariable Long jobId, @RequestParam String resumeLink,
+	public ResponseEntity<?> applyForJob(@PathVariable Long jobId, @RequestParam String resumeLink,
 			Principal principal) {
 		// Check if job exists
 		jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
-
+		
+		Long candidateId = getLoggedInUserId(principal);
+		if (appRepository.existsByJobIdAndCandidateId(jobId, candidateId)) {
+			return ResponseEntity.badRequest().body("You have already applied for this job.");
+		}
+		
 		Application app = new Application();
 		app.setJobId(jobId);
 		app.setCandidateId(getLoggedInUserId(principal));
@@ -77,6 +90,7 @@ public class JobSeekerController {
 	}
 
 	// 4. Track Application Status
+	@PreAuthorize("hasAnyAuthority('JOBSEEKER','ROLE_JOBSEEKER')") // ONLY Jobseekers allowed
 	@GetMapping("/applications")
 	public ResponseEntity<List<Application>> getMyApplications(Principal principal) {
 		return ResponseEntity.ok(appRepository.findByCandidateId(getLoggedInUserId(principal)));

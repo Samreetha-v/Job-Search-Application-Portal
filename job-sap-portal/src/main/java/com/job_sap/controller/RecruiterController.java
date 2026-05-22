@@ -31,130 +31,113 @@ import com.job_sap.repository.UserRepository;
 import com.job_sap.service.JobService;
 import com.job_sap.service.ResumeService;
 
-
 @RestController
 @RequestMapping("/api/recruiter")
-@PreAuthorize("hasAuthority('ROLE_RECRUITER')") // ONLY Recruiters allowed
+@PreAuthorize("hasAnyAuthority('RECRUITER','ROLE_RECRUITER')") // ONLY Recruiters allowed
 public class RecruiterController {
 
-    @Autowired
-    private JobRepository jobRepository;
-    
-    @Autowired
-    private AppRepository appRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ResumeService resumeService;
-    @Autowired
-    private JobService jobService;
-    
+	@Autowired
+	private JobRepository jobRepository;
 
-    // Helper method to get the logged-in recruiter's ID
-    private Long getLoggedInUserId(Principal principal) {
-        User user = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getId();
-    }
+	@Autowired
+	private AppRepository appRepository;
 
-    // 1. Post Job
-    @PostMapping("/jobs")
-    public ResponseEntity<Job> postJob(@RequestBody Job job, Principal principal) {
-        job.setRecruiterId(getLoggedInUserId(principal));
-        return ResponseEntity.ok(jobRepository.save(job));
-    }
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private ResumeService resumeService;
+	@Autowired
+	private JobService jobService;
 
-    // 2. View Posted Jobs
-    @GetMapping("/jobs")
-    public ResponseEntity<List<Job>> getMyJobs(Principal principal) {
-        return ResponseEntity.ok(jobRepository.findByRecruiterId(getLoggedInUserId(principal)));
-    }
+	// Helper method to get the logged-in recruiter's ID
+	private Long getLoggedInUserId(Principal principal) {
+		User user = userRepository.findByEmail(principal.getName())
+				.orElseThrow(() -> new RuntimeException("User not found"));
+		return user.getId();
+	}
 
-    // 3. Update Job
-    @PutMapping("/jobs/{jobId}")
-    public ResponseEntity<Job> updateJob(@PathVariable Long jobId, @RequestBody Job updatedJob, Principal principal) {
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
-        
-        // Security check: Ensure this recruiter owns this job
-        if (!job.getRecruiterId().equals(getLoggedInUserId(principal))) {
-            return ResponseEntity.status(403).build();
-        }
-        
-        job.setTitle(updatedJob.getTitle());
-        job.setDescription(updatedJob.getDescription());
-        job.setCompany(updatedJob.getCompany());
-        job.setLocation(updatedJob.getLocation());
-        return ResponseEntity.ok(jobService.postJob(job));
-    }
+	// 1. Post Job
+	@PostMapping("/jobs")
+	public ResponseEntity<Job> postJob(@RequestBody Job job, Principal principal) {
+		job.setRecruiterId(getLoggedInUserId(principal));
+		return ResponseEntity.ok(jobRepository.save(job));
+	}
 
-    // 4. Delete Job
-    @DeleteMapping("/jobs/{jobId}")
-    public ResponseEntity<String> deleteJob(@PathVariable Long jobId, Principal principal) {
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
-        if (!job.getRecruiterId().equals(getLoggedInUserId(principal))) {
-            return ResponseEntity.status(403).body("Not authorized to delete this job");
-        }
-        jobRepository.delete(job);
-        return ResponseEntity.ok("Job deleted successfully");
-    }
+	// 2. View Posted Jobs
+	@GetMapping("/jobs")
+	public ResponseEntity<List<Job>> getMyJobs(Principal principal) {
+		return ResponseEntity.ok(jobRepository.findByRecruiterId(getLoggedInUserId(principal)));
+	}
 
-    // 5. View Applicants for a Job
-    @GetMapping("/jobs/{jobId}/applicants")
-    public ResponseEntity<List<Application>> getApplicants(@PathVariable Long jobId, Principal principal) {
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
-        if (!job.getRecruiterId().equals(getLoggedInUserId(principal))) {
-            return ResponseEntity.status(403).build();
-        }
-        return ResponseEntity.ok(appRepository.findByJobId(jobId));
-    }
+	// 3. Update Job
+	@PutMapping("/jobs/{jobId}")
+	public ResponseEntity<Job> updateJob(@PathVariable Long jobId, @RequestBody Job updatedJob, Principal principal) {
+		Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
 
- // 6. Shortlist / Update Status
-    @PutMapping("/applications/{appId}/status")
-    public ResponseEntity<Application> updateApplicationStatus(
-            @PathVariable Long appId,
-            @RequestParam String status) {
+		// Security check: Ensure this recruiter owns this job
+		if (!job.getRecruiterId().equals(getLoggedInUserId(principal))) {
+			return ResponseEntity.status(403).build();
+		}
 
-        Application app = appRepository.findById(appId)
-                .orElseThrow(() ->
-                        new RuntimeException("Application not found"));
+		job.setTitle(updatedJob.getTitle());
+		job.setDescription(updatedJob.getDescription());
+		job.setCompany(updatedJob.getCompany());
+		job.setLocation(updatedJob.getLocation());
+		return ResponseEntity.ok(jobService.postJob(job));
+	}
 
-        ApplicationStatus appStatus =
-                ApplicationStatus.valueOf(status);
+	// 4. Delete Job
+	@DeleteMapping("/jobs/{jobId}")
+	public ResponseEntity<String> deleteJob(@PathVariable Long jobId, Principal principal) {
+		Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
+		if (!job.getRecruiterId().equals(getLoggedInUserId(principal))) {
+			return ResponseEntity.status(403).body("Not authorized to delete this job");
+		}
+		appRepository.deleteByJobId(jobId);
+		jobRepository.delete(job);
+		return ResponseEntity.ok("Job deleted successfully");
+	}
 
-        app.setStatus(appStatus);
+	// 5. View Applicants for a Job
+	@GetMapping("/jobs/{jobId}/applicants")
+	public ResponseEntity<List<Application>> getApplicants(@PathVariable Long jobId, Principal principal) {
+		Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
+		if (!job.getRecruiterId().equals(getLoggedInUserId(principal))) {
+			return ResponseEntity.status(403).build();
+		}
+		return ResponseEntity.ok(appRepository.findByJobId(jobId));
+	}
 
-        return ResponseEntity.ok(
-                appRepository.save(app)
-        );
-    }
+	// 6. Shortlist / Update Status
+	@PutMapping("/applications/{appId}/status")
+	public ResponseEntity<Application> updateApplicationStatus(@PathVariable Long appId, @RequestParam String status) {
 
+		Application app = appRepository.findById(appId)
+				.orElseThrow(() -> new RuntimeException("Application not found"));
 
-    // 7. Download Resume
-    @GetMapping("/download/resume/{fileName}")
-    public ResponseEntity<Resource> downloadResume(
-            @PathVariable String fileName) {
+		ApplicationStatus appStatus = ApplicationStatus.valueOf(status.trim().toUpperCase());
 
+		app.setStatus(appStatus);
+
+		return ResponseEntity.ok(appRepository.save(app));
+	}
+
+	// 7. Download Resume
+    @GetMapping("/download/resume/{fileName:.+}")
+    public ResponseEntity<Resource> downloadResume(@PathVariable String fileName) {
         try {
-
-            Path filePath =
-                    resumeService.downloadResume(fileName);
-
-            Resource resource =
-                    new UrlResource(filePath.toUri());
+            // The service now directly hands us the Resource!
+            Resource resource = resumeService.downloadResume(fileName);
 
             return ResponseEntity.ok()
                     .header(
                             HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\""
-                                    + resource.getFilename()
-                                    + "\""
+                            "attachment; filename=\"" + resource.getFilename() + "\""
                     )
                     .body(resource);
 
         } catch (Exception e) {
-
             return ResponseEntity.notFound().build();
         }
     }
-        }
+}

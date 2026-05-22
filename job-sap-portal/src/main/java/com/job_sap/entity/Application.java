@@ -18,7 +18,7 @@ public class Application {
     private String resumeLink;
     
     @Enumerated(EnumType.STRING)
-    private ApplicationStatus status = ApplicationStatus.APPLIED;// e.g., PENDING, ACCEPTED, REJECTED
+    private ApplicationStatus status = ApplicationStatus.APPLIED;
     
     private LocalDateTime appliedAt = LocalDateTime.now();
 

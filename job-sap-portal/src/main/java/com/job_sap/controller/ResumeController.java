@@ -17,7 +17,7 @@ public class ResumeController {
 
     // Upload Resume
     @PostMapping("/upload/resume")
-    @PreAuthorize("hasAuthority('ROLE_JOBSEEKER')")
+    @PreAuthorize("hasAnyAuthority('JOBSEEKER','ROLE_JOBSEEKER')")
     public ResponseEntity<String> uploadResume(
             @RequestParam("file") MultipartFile file) {
 
