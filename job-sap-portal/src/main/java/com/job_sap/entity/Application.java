@@ -15,7 +15,18 @@ public class Application {
     
     private Long jobId;
     private Long candidateId;
-    private String resumeLink;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "candidateId", insertable = false, updatable = false)
+    private User candidate;
+    public User getCandidate() {
+		return candidate;
+	}
+
+	public void setCandidate(User candidate) {
+		this.candidate = candidate;
+	}
+
+	private String resumeLink;
     
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status = ApplicationStatus.APPLIED;

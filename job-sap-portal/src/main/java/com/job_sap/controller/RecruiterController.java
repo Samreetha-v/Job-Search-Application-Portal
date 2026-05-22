@@ -110,7 +110,7 @@ public class RecruiterController {
 
 	// 6. Shortlist / Update Status
 	@PutMapping("/applications/{appId}/status")
-	public ResponseEntity<Application> updateApplicationStatus(@PathVariable Long appId, @RequestParam String status) {
+	public ResponseEntity<?> updateApplicationStatus(@PathVariable Long appId, @RequestParam String status) {
 
 		Application app = appRepository.findById(appId)
 				.orElseThrow(() -> new RuntimeException("Application not found"));
@@ -119,7 +119,7 @@ public class RecruiterController {
 
 		app.setStatus(appStatus);
 
-		return ResponseEntity.ok(appRepository.save(app));
+		return ResponseEntity.ok("Status updated successfully");
 	}
 
 	// 7. Download Resume
