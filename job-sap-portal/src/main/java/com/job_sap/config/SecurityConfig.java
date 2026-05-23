@@ -52,7 +52,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // Allow your React app
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); 
+        configuration.setAllowedOrigins(Arrays.asList("https://job-search-application-mu.vercel.app/")); 
         
         // Allow all standard HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
