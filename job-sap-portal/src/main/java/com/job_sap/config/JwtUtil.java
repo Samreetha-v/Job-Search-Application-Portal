@@ -14,7 +14,7 @@ import io.jsonwebtoken.Claims;
 public class JwtUtil {
 
 	// Inject the secret key from your environment variables
-	@Value("${JWT_SECRET}")
+	@Value("${jwt.secret}")
 	private String secretString;
 
 	// Convert the string to a key
